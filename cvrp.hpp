@@ -24,6 +24,7 @@ bool lerArquivo(const std::string arquivo)
     int countLine = 1; //contador de linhas da string
     for (string line; getline(input, line);)
     {
+        //função para dividir a string
         istringstream iss(line);
         vector<string>
             results(istream_iterator<string>{iss},
@@ -31,50 +32,43 @@ bool lerArquivo(const std::string arquivo)
 
         if (countLine <= 3)
         {
-
             // tratar name, dimension,capacity
 
-            if (countLine == 1)
+            if (countLine == 1) // tratamento do nome
             {
                 roteamento.nome = results[1];
             }
-            else if (countLine == 2)
+            else if (countLine == 2) // tratamento da dimensao
             {
                 roteamento.dimensao = atoi(results[1].c_str());
                 roteamento.matrizCusto = new int *[roteamento.dimensao];
                 for (int i = 0; i < roteamento.dimensao; ++i)
-                    roteamento.matrizCusto[i] = new int[roteamento.dimensao];
+                    roteamento.matrizCusto[i] = new int[roteamento.dimensao]; //a matriz custo recebe o tamanho da dimensao
             }
-            else if (countLine == 3)
+            else if (countLine == 3) // tratamento da capacidade
             {
                 roteamento.capacidade = atoi(results[1].c_str());
             }
         }
-
         else
         {
-            if (countLine == 4 || countLine == (6 + roteamento.dimensao) || countLine == (5 + roteamento.dimensao))
-            {
-            }
-            else if (countLine > 4 && countLine < (5 + roteamento.dimensao))
+            if (countLine > 4 && countLine < (5 + roteamento.dimensao))
             {
                 roteamento.demanda.push_back(atoi(results[1].c_str()));
                 // demanda
             }
-            else
+            else if (countLine > (6 + roteamento.dimensao))
             {
-                int offset = 7 + roteamento.dimensao;
+                int offset = 7 + roteamento.dimensao; // fixa a primeira linha da matrix
 
                 for (int i = 0; i < results.size(); i++)
                 {
                     cout << atoi(results[i].c_str()) << endl;
                     roteamento.matrizCusto[countLine - offset][i] = atoi(results[i].c_str());
                 }
-                // matriz peso
+                // matriz custo
             }
-
+            countLine++;
+            // cout << line << endl;
         }
-        countLine++;
-        // cout << line << endl;
     }
-}
