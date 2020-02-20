@@ -5,6 +5,6 @@
 
 int main()
 {
-const std::string name("P-n16-k8.txt");
-lerArquivo(name);
+    const std::string name("P-n16-k8.txt");
+    CVRP roteamento(name);
 }
