@@ -4,23 +4,22 @@
 
 using namespace std;
 
+class CVRP {
+    public:
+    string nome;
+    int dimensao;
+    int capacidade;
+    vector<int> demanda;
+
+}
+
 bool lerArquivo(const std:: string arquivo)
-{
-   
+{ 
 ifstream input( arquivo.c_str() );
 
 for( string line; getline( input, line ); )
 {
     cout<< line << endl;
 }
- /*   std::string n;
-    ifstream file (arquivo.c_str());
-    if(file.is_open())
-    {
-         getline(file, n);
-         return ! file.bad();
-    }
-        return false;
-
-       cout << n << endl;*/
 }
+
