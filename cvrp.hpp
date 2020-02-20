@@ -11,19 +11,22 @@ using namespace std;
 
 class CVRP
 {
-public:
+private:
     string nome;
     int dimensao;
     int capacidadeTotal;
     int capacidadeAtual;
     vector<int> demanda;
     int **matrizCusto; // matriz de custos
-
-    CVRP() {}
-    CVRP(const string);
     bool checarDemanda();
     bool checarCapacidadeComDemanda(int);
+    void entregaProduto(int);
     int procurarProximoNo(int);
+
+public:
+    CVRP() {}
+    CVRP(const string);
+
     void HVM();
 };
 
@@ -31,18 +34,40 @@ void CVRP::HVM()
 {
     int noAtual = 0;
     int custoTotal = 0;
+
     capacidadeAtual = capacidadeTotal;
 
     while (checarDemanda())
     {
+        cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
         int proxNo = procurarProximoNo(noAtual);
 
-        if (proxNo == DISTRIBUIDOR)
-        {
-            capacidadeAtual = capacidadeTotal;
-        }
+        entregaProduto(proxNo);
 
         custoTotal += matrizCusto[proxNo][noAtual];
+
+        noAtual = proxNo;
+    }
+
+    cout << "Caminhao voltou e o trabalho foi realizado! "
+         << "\n"
+         << " Distancia total Percorrida de: " << custoTotal << " km" << endl;
+}
+
+void CVRP::entregaProduto(int no)
+{
+    if (no != DISTRIBUIDOR)
+    {
+        capacidadeAtual -= demanda[no];
+        demanda[no] = 0;
+
+        cout << "Cliente " << no << " abastecido" << endl;
+    }
+    else
+    {
+        capacidadeAtual = capacidadeTotal;
+
+        cout << "Caminhou voltou para o distribuidor" << endl;
     }
 }
 
@@ -94,6 +119,7 @@ CVRP::CVRP(const std::string arquivo)
     int countLine = 1; //contador de linhas da string
     for (string line; getline(input, line);)
     {
+
         //função para dividir a string
         istringstream iss(line);
         vector<string>
@@ -122,6 +148,7 @@ CVRP::CVRP(const std::string arquivo)
         }
         else
         {
+
             if (countLine > 4 && countLine < (5 + this->dimensao))
             {
                 this->demanda.push_back(atoi(results[1].c_str()));
@@ -133,13 +160,11 @@ CVRP::CVRP(const std::string arquivo)
 
                 for (int i = 0; i < results.size(); i++)
                 {
-                    cout << atoi(results[i].c_str()) << endl;
                     this->matrizCusto[countLine - offset][i] = atoi(results[i].c_str());
                 }
                 // matriz custo
             }
-            countLine++;
-            // cout << line << endl;
         }
+        countLine++;
     }
 }
