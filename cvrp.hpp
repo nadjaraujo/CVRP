@@ -73,9 +73,6 @@ bool lerArquivo(const std::string arquivo)
                 // matriz peso
             }
 
-            // tratar name, dimension,capacity
-
-            //tratar o resto
         }
         countLine++;
         // cout << line << endl;
