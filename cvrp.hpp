@@ -17,7 +17,7 @@ private:
     int capacidadeTotal;
     int capacidadeAtual;
     vector<int> demanda;
-    int **matrizCusto; // matriz de custos
+    int **matrizCusto;
     bool checarDemanda();
     bool checarCapacidadeComDemanda(int);
     void entregaProduto(int);
@@ -30,32 +30,35 @@ public:
     void HVM();
 };
 
+//heuristica do vizinho mais proximo
 void CVRP::HVM()
 {
     int noAtual = 0;
     int custoTotal = 0;
-
+    // capacidade total do caminhão
     capacidadeAtual = capacidadeTotal;
 
+    //enquanto houver demanda
     while (checarDemanda())
     {
         cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
         int proxNo = procurarProximoNo(noAtual);
 
         entregaProduto(proxNo);
-
+        //custo total incrementado pela distancia dos dois nos.
         custoTotal += matrizCusto[proxNo][noAtual];
 
         noAtual = proxNo;
     }
-
-    cout << "Caminhao voltou e o trabalho foi realizado! "
+    // quando não houver mais demandas.
+    cout << "O trabalho foi realizado! "
          << "\n"
          << " Distancia total Percorrida de: " << custoTotal << " km" << endl;
 }
 
 void CVRP::entregaProduto(int no)
 {
+    // se nao for um distruibuidor
     if (no != DISTRIBUIDOR)
     {
         capacidadeAtual -= demanda[no];
@@ -70,7 +73,7 @@ void CVRP::entregaProduto(int no)
         cout << "Caminhou voltou para o distribuidor" << endl;
     }
 }
-
+// verifica se há demanda
 bool CVRP::checarDemanda()
 {
     for (int i = 0; i < this->demanda.size(); i++)
@@ -82,7 +85,7 @@ bool CVRP::checarDemanda()
     }
     return false;
 }
-
+// verifica se a demanda do no/vizinho cabe na capacidade do caminhao
 bool CVRP::checarCapacidadeComDemanda(int no)
 {
     if (this->demanda[no] > 0 && this->demanda[no] <= this->capacidadeAtual)
@@ -95,15 +98,16 @@ bool CVRP::checarCapacidadeComDemanda(int no)
         return false;
     }
 }
-
+// funcao pra procurar o proximo menor vizinho
 int CVRP::procurarProximoNo(int noATual)
 {
     int prox = DISTRIBUIDOR;
+    //variavel que armazena a menor distancia
     int distanciaProx = numeric_limits<int>::max();
 
     for (int i = 1; i < this->dimensao; i++)
     {
-        if (this->matrizCusto[noATual][i] < distanciaProx && checarCapacidadeComDemanda(i))
+        if (this->matrizCusto[noATual][i] < distanciaProx && checarCapacidadeComDemanda(i)) //checa a distancia do no atual pros vizinhos
         {
             prox = i;
             distanciaProx = this->matrizCusto[noATual][i];
