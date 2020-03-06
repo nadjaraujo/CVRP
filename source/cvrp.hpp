@@ -23,7 +23,7 @@ private:
     bool checarCapacidadeComDemanda(int);
     void entregaProduto(int);
     int procurarProximoNo(int);
-    vector<vector <int>> rotas;  //vertor que avai armazenar as rotas
+    vector<vector <int>> rotas;  //vertor que vai armazenar as rotas
 
 public:
     CVRP() {}
@@ -40,8 +40,9 @@ void CVRP::HVM()
     // capacidade total do caminhão
     capacidadeAtual = capacidadeTotal;
 
-    //enquanto houver demanda
+    //vetor que vai armazenar as rotas atuais 
     vector<int> rotaAtual;
+    //enquanto houver demanda
     while (checarDemanda())
     {
     
@@ -55,11 +56,11 @@ void CVRP::HVM()
         custoTotal += matrizCusto[proxNo][noAtual];
 
         noAtual = proxNo;
-
+        //se o próximo nó for = 0
         if(proxNo == 0){
-            rotaAtual.push_back(proxNo);
-            rotas.push_back(rotaAtual);
-            rotaAtual.clear();
+            rotaAtual.push_back(proxNo);     
+            rotas.push_back(rotaAtual);    //adiciona a rota feita no vetor de rotas
+            rotaAtual.clear();        //limpa rota atual pra começar outra rota 
         }
     }
     // quando não houver mais demandas.
