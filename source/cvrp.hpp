@@ -23,6 +23,7 @@ private:
     bool checarCapacidadeComDemanda(int);
     void entregaProduto(int);
     int procurarProximoNo(int);
+    vector<vector <int>> rotas;  //vertor que avai armazenar as rotas
 
 public:
     CVRP() {}
@@ -40,8 +41,12 @@ void CVRP::HVM()
     capacidadeAtual = capacidadeTotal;
 
     //enquanto houver demanda
+    vector<int> rotaAtual;
     while (checarDemanda())
     {
+    
+        rotaAtual.push_back(noAtual);
+
         cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
         int proxNo = procurarProximoNo(noAtual);
 
@@ -50,11 +55,24 @@ void CVRP::HVM()
         custoTotal += matrizCusto[proxNo][noAtual];
 
         noAtual = proxNo;
+
+        if(proxNo == 0){
+            rotaAtual.push_back(proxNo);
+            rotas.push_back(rotaAtual);
+            rotaAtual.clear();
+        }
     }
     // quando não houver mais demandas.
     cout << "O trabalho foi realizado! "
          << "\n"
-         << " Distancia total Percorrida de: " << custoTotal << " km" << endl;
+         << "Distancia total Percorrida de: " << custoTotal << " km" << endl;
+    cout << "Rotas :" << endl;
+    for(const auto& rota : rotas){
+        for(const auto& no : rota){
+            cout << no << " ";
+        }
+        cout << endl;
+    }
 }
 
 void CVRP::entregaProduto(int no)
