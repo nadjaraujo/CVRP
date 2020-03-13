@@ -6,7 +6,6 @@
 #include <limits>
 #include <algorithm>
 #include <bits/stdc++.h>
-//#include "movimentos.hpp"
 
 using namespace std;
 
@@ -70,21 +69,13 @@ void CVRP::HVM()
         //custo total incrementado pela distancia dos dois nos.
 
         custoTotal += matrizCusto[proxNo][noAtual];
-
-
-
-
-
         noAtual = proxNo;
+
         //se o próximo nó for = 0
-
-
         if(proxNo == 0){
-
 
             rotaAtual.push_back(proxNo);
             rotas.push_back(rotaAtual);    //adiciona a rota feita no vetor de rotas
-
 
             rotaAtual.clear();        //limpa rota atual pra começar outra rota
 
@@ -102,15 +93,6 @@ void CVRP::HVM()
         swapOnebyOne();
 
 }
-
-
-
-
-// int CVRP::swapOnebyOne(vector<vector<int>> r){
-//     // int i = r[1][1];
-//     // for(i = 1; i < r.size(); i++ )
-// }
-
 
 void CVRP::entregaProduto(int no)
 {
