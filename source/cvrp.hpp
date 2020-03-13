@@ -4,7 +4,6 @@
 #include <string>
 #include <iterator>
 #include <limits>
-#include "movimentos.hpp"
 
 using namespace std;
 
@@ -23,6 +22,7 @@ private:
     bool checarCapacidadeComDemanda(int);
     void entregaProduto(int);
     int procurarProximoNo(int);
+    void swap_1_1(int);
     vector<vector <int>> rotas;  //vertor que vai armazenar as rotas
 
 public:
@@ -136,6 +136,24 @@ int CVRP::procurarProximoNo(int noATual)
 
     return prox;
 }
+
+// movimento de troca entre duas rotas (swap 1 por 1)
+void CVRP::swap_1_1(int s)
+{
+    for(int i=0; i< rotas.size(); i++)
+    {
+        vector<int> r1 = rotas[i];
+
+       for(int j= i+1; j < rotas.size(); j++) 
+       {
+           vector<int> r2 = rotas[j];
+       }
+       
+    }
+
+
+}
+
 
 CVRP::CVRP(const std::string arquivo)
 {
