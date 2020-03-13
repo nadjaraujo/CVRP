@@ -24,9 +24,8 @@ private:
     bool checarCapacidadeComDemanda(int);
     void entregaProduto(int);
     int procurarProximoNo(int);
-    int CalcularCustoSwap(vector<vector <int>> , int);
+    int CalcularCustoSwap(vector<vector <int>>,int);
     void CalcularCustoDasRotas();
-    int CalcularCusto(vector<vector<int>>);
     vector<vector <int>> rotas;  //vertor que vai armazenar as rotas
     vector <int> custoRota;
     int custoTotal = 0;
@@ -34,13 +33,11 @@ private:
 
 public:
 
-    void swapOnebyOne();
-
-
     CVRP() {}
     CVRP(const string);
 
     void HVM();
+    void swapInterRoute();
 
 };
 
@@ -52,14 +49,14 @@ void CVRP::HVM()
     // capacidade total do caminhão
     capacidadeAtual = capacidadeTotal;
     int custoAtual = 0;
+
     //vetor que vai armazenar as rotas atuais
     vector<int> rotaAtual;
+
     //enquanto houver demanda
     while (checarDemanda())
     {
-
         rotaAtual.push_back(noAtual);
-
 
         cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
         int proxNo = procurarProximoNo(noAtual);
@@ -90,7 +87,7 @@ void CVRP::HVM()
 
         CalcularCustoDasRotas();
 
-        swapOnebyOne();
+        swapInterRoute();
 
 }
 
@@ -111,6 +108,7 @@ void CVRP::entregaProduto(int no)
         cout << "Caminhou voltou para o distribuidor" << endl;
     }
 }
+
 // verifica se há demanda
 bool CVRP::checarDemanda()
 {
@@ -120,6 +118,7 @@ bool CVRP::checarDemanda()
 
     return false;
 }
+
 // verifica se a demanda do no/vizinho cabe na capacidade do caminhao
 bool CVRP::checarCapacidadeComDemanda(int no)
 {
@@ -267,7 +266,7 @@ int custo = 0;
 
 }
 
-void CVRP::swapOnebyOne() {
+void CVRP::swapInterRoute() {
 
     vector <int> indicesPrint;
     int custoSwap = 0;
@@ -276,7 +275,7 @@ void CVRP::swapOnebyOne() {
     vector <int> melhorRota;
     vector<vector<int>> rotasFinal = rotas;  //decidi deixar um vetor separado pra armazenar as rotas alteradas pra não confundir
     vector <int> custoRotaInicial = custoRota; // só armazena os custos iniciais das rotas pra printar depois
-    vector <int> somarCustos;
+
 
     for(int i = 0; i < custoRotaInicial.size(); i++)
         cout<< "Custo rota indice"<< i << " "<<custoRotaInicial[i]<< "\n";
