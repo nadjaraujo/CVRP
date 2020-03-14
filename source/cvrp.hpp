@@ -24,8 +24,9 @@ private:
     bool checarCapacidadeComDemanda(int);
     void entregaProduto(int);
     int procurarProximoNo(int);
-    int CalcularCustoSwap(vector<vector <int>>,int);
     void CalcularCustoDasRotas();
+    int CalcularCustoSwap(vector<vector <int>>,int);
+    int CalcularCustoPrint(vector <int>);
     vector<vector <int>> rotas;  //vertor que vai armazenar as rotas
     vector <int> custoRota;
     int custoTotal = 0;
@@ -54,40 +55,46 @@ void CVRP::HVM()
     vector<int> rotaAtual;
 
     //enquanto houver demanda
-    while (checarDemanda())
+   while (1)
     {
+
         rotaAtual.push_back(noAtual);
 
         cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
         int proxNo = procurarProximoNo(noAtual);
 
         entregaProduto(proxNo);
-
         //custo total incrementado pela distancia dos dois nos.
-
         custoTotal += matrizCusto[proxNo][noAtual];
-        noAtual = proxNo;
 
+        noAtual = proxNo;
         //se o próximo nó for = 0
         if(proxNo == 0){
-
             rotaAtual.push_back(proxNo);
             rotas.push_back(rotaAtual);    //adiciona a rota feita no vetor de rotas
-
             rotaAtual.clear();        //limpa rota atual pra começar outra rota
-
         }
 
+        if(!checarDemanda()){
+
+            rotaAtual.push_back(proxNo);
+            rotaAtual.push_back(DISTRIBUIDOR);
+            rotas.push_back(rotaAtual);    //adiciona a rota feita no vetor de rotas
+            rotaAtual.clear();        //limpa rota atual pra começar outra rota
+            break;
+        }
     }
+
+
     // quando não houver mais demandas.
     cout << "O trabalho foi realizado! "
-         << "\n"
-         << "Distancia total Percorrida de: " << custoTotal << " km" << endl;
+         << "\n";
 
 
-        CalcularCustoDasRotas();
 
-        swapInterRoute();
+       CalcularCustoDasRotas();
+
+       swapInterRoute();
 
 }
 
@@ -112,8 +119,8 @@ void CVRP::entregaProduto(int no)
 // verifica se há demanda
 bool CVRP::checarDemanda()
 {
-    for (int i = 0; i < this->demanda.size(); i++)
-        if (this->demanda[i] > 0)
+    for (int i = 0; i < demanda.size()+1; i++)
+        if (demanda[i] > 0)
             return true;
 
     return false;
@@ -266,7 +273,21 @@ int custo = 0;
 
 }
 
+//funçao que calcula os custos finais pra printar
+int CVRP:: CalcularCustoPrint(vector <int> r){
+int aux = 0;
+     for(int i = 0; i < r.size(); i++){
+
+                aux+= r[i];
+     }
+
+return aux;
+
+}
+
+
 void CVRP::swapInterRoute() {
+
 
     vector <int> indicesPrint;
     int custoSwap = 0;
@@ -275,10 +296,9 @@ void CVRP::swapInterRoute() {
     vector <int> melhorRota;
     vector<vector<int>> rotasFinal = rotas;  //decidi deixar um vetor separado pra armazenar as rotas alteradas pra não confundir
     vector <int> custoRotaInicial = custoRota; // só armazena os custos iniciais das rotas pra printar depois
+    //for(int i = 0; i < custoRotaInicial.size(); i++){cout<< "Custo rota indice"<< i << " "<<custoRotaInicial[i]<< "\n";}
 
-
-    for(int i = 0; i < custoRotaInicial.size(); i++)
-        cout<< "Custo rota indice"<< i << " "<<custoRotaInicial[i]<< "\n";
+   //
 
     for(int i = 0; i < ro.size(); i++){
 
@@ -295,8 +315,9 @@ void CVRP::swapInterRoute() {
          //cout<<"CustoRota"<<custoRota[i]<<endl;
 
             if (custoSwap < custoRota[i]){ // Se o custo que a rota teria caso a troca de clientes fosse efetuada é menor que o custo anterior da rota?
-                indicesPrint.push_back(i);
 
+
+                 indicesPrint.push_back(i);
 
                 //se for, o custo passa a ser o menor e sua rota é armazenada
                 custoRota[i] = custoSwap;
@@ -306,9 +327,12 @@ void CVRP::swapInterRoute() {
 
             }
 
+
         }
 
     }
+
+
 
 
     cout<< "----------------------------SWAP INTER ROUTE-------------------------------"<<endl;
@@ -343,4 +367,17 @@ void CVRP::swapInterRoute() {
                 cout << endl;
 
             }
+
+
+            int b = CalcularCustoPrint(custoRotaInicial);
+            int g = CalcularCustoPrint(custoRota);
+
+    cout<< "\n"<<endl;
+    cout<< "Distancia Percorrida inicialmente: "<< b<< " km"<<endl;
+    cout<< "Distancia Percorrida apos o swap: "<< g<<" km"<<endl;
+    cout <<"Economia de " << b-g << " km"<<endl;
 }
+
+
+
+
