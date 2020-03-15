@@ -31,12 +31,12 @@ private:
   int entregaMax(vector<int>);
   int CustoPorRota(vector<int>);
   int CustoSolucao(vector<vector<int>>);
-  vector<int> custoRota;
-  void swapInterRoute(vector<vector<int>>);
-  vector<vector<int>> swap_1_1(vector<vector<int>>);
-  vector<vector<int>> opt_1(vector<vector<int>>);
   vector<vector<int>> rotas; //vertor que vai armazenar as rotas
   int custoTotal = 0;
+  vector<vector<int>> swapInterRoute(vector<vector<int>>);
+  vector<vector<int>> swap_1_1(vector<vector<int>>);
+  vector<vector<int>> opt_1(vector<vector<int>>);
+
 
 public:
   CVRP() {}
@@ -239,7 +239,7 @@ int CVRP::CustoSolucao(vector<vector<int>> s)
 }
 
 //Movimento de troca de clientes entre a mesma rota
-void CVRP::swapInterRoute(vector<vector<int>> rota)
+vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
 {
     vector<int> custoRota;
     vector<int>indicesPrint; // armazena o valor das rotas que foram alteradas
@@ -334,6 +334,8 @@ void CVRP::swapInterRoute(vector<vector<int>> rota)
     cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
     cout << "Distancia Percorrida apos o swap: " << g << " km" << endl;
     cout << "Economia de " << b - g << " km" << endl;
+
+    return rotasFinal;
 }
 
 // movimento de troca entre um cliente de uma rota para um cliente de outra rota.
