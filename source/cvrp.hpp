@@ -38,6 +38,7 @@ private:
   int CustoSolucao(vector<vector<int>>);
   vector<int> custoRota;
   vector<vector<int>> swap_1_1(vector<vector<int>>);
+  vector<vector<int>> opt_1(vector<vector<int>>);
   vector<vector<int>> rotas; //vertor que vai armazenar as rotas
   int custoTotal = 0;
 
@@ -113,6 +114,8 @@ void CVRP::HVM()
   swapInterRoute();
 
   swap_1_1(rotas);
+
+  opt_1(rotas);
 }
 
 //funçao pra entregar o produto
@@ -354,6 +357,85 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
        << endl;
   cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
   cout << "Distancia Percorrida apos o swap: " << g << " km" << endl;
+  cout << "Economia de " << b - g << " km" << endl;
+
+  return rotaFinal;
+}
+
+//remove um cliente de uma rota e insere em outra posição.
+vector<vector<int>> CVRP::opt_1(vector<vector<int>> s)
+{
+  vector<vector<int>> rotaInicial = s;
+  cout << "----------------------------1_Opt inter route-------------------------------" << endl;
+  cout << "\n"
+       << endl;
+  cout << "---------------Rotas Inicias-------------" << endl;
+  for (const auto &rot : rotaInicial)
+  {
+    for (const auto &no : rot) //muitas prints
+    {
+      cout << no << " ";
+    }
+    cout << endl;
+  }
+
+  cout << "\n"
+       << endl;
+
+  for (int i = 0; i < s.size(); i++)
+  {
+    vector<int> r1 = s[i];
+
+    for (int j = 0; j < r1.size(); j++)
+    {
+      int vizinhoJ = r1[j];
+
+      if (vizinhoJ == DISTRIBUIDOR)
+      {
+        continue;
+      }
+
+      for (int k = j + 1; k < r1.size(); k++)
+      {
+        if (r1[k] == DISTRIBUIDOR)
+        {
+          continue;
+        }
+
+        int custoSolucaoAtual = CustoPorRota(r1);                  // salva custo atual
+        vector<int> r1_reinserido = r1;                            //copia rota de r1
+        r1_reinserido.insert(r1_reinserido.begin() + k, vizinhoJ); // insere vizinho j na posição k
+        r1_reinserido.erase(r1_reinserido.begin() + j);            // remove j
+        int custoNovaSolucao = CustoPorRota(r1_reinserido);
+        if (custoSolucaoAtual > custoNovaSolucao)
+        {
+          r1 = r1_reinserido;
+          s[i] = r1; // att solução
+        }
+      }
+    }
+  }
+  vector<vector<int>> rotaFinal = s;
+
+  cout << "\n"
+       << endl;
+  cout << "---------------Rota Final-------------" << endl;
+  for (const auto &rot : rotaFinal)
+  {
+    for (const auto &no : rot)
+    {
+      cout << no << " ";
+    }
+    cout << endl;
+  }
+  //prints
+  int b = CustoSolucao(rotaInicial);
+  int g = CustoSolucao(rotaFinal);
+
+  cout << "\n"
+       << endl;
+  cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
+  cout << "Distancia Percorrida apos o 1_OPT: " << g << " km" << endl;
   cout << "Economia de " << b - g << " km" << endl;
 
   return rotaFinal;
