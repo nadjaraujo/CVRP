@@ -52,12 +52,14 @@ public:
 void CVRP::HVM()
 {
     int noAtual = 0;
-    int custoTotal = 0;
+
     // capacidade total do caminhão
     capacidadeAtual = capacidadeTotal;
+    int custoAtual = 0;
 
     //vetor que vai armazenar as rotas atuais
     vector<int> rotaAtual;
+
     //enquanto houver demanda
     while (1)
     {
@@ -93,6 +95,7 @@ void CVRP::HVM()
             break;
         }
     }
+
     // quando não houver mais demandas.
     cout << "O trabalho foi realizado! "
          << "\n"
@@ -136,28 +139,18 @@ void CVRP::entregaProduto(int no)
 // verifica se há demanda
 bool CVRP::checarDemanda()
 {
-    for (int i = 0; i < this->demanda.size(); i++)
-    {
-        if (this->demanda[i] > 0)
-        {
+    for (int i = 0; i < demanda.size() + 1; i++)
+        if (demanda[i] > 0)
             return true;
-        }
-    }
+
     return false;
 }
 
 // verifica se a demanda do no/vizinho cabe na capacidade do caminhao
 bool CVRP::checarCapacidadeComDemanda(int no)
 {
-    if (this->demanda[no] > 0 && this->demanda[no] <= this->capacidadeAtual)
-    {
-        return true;
-    }
-    else
-    {
-
-        return false;
-    }
+    auto v = demanda.at(no);
+    return v > 0 && v <= capacidadeAtual;
 }
 
 // funcao pra procurar o proximo menor vizinho
@@ -391,14 +384,14 @@ CVRP::CVRP(const std::string arquivo)
             }
             else if (countLine == 2) // tratamento da dimensao
             {
-                this->dimensao = atoi(results[1].c_str());
+                this->dimensao = std::stoi(results[1]);
                 this->matrizCusto = new int *[this->dimensao];
                 for (int i = 0; i < this->dimensao; ++i)
                     this->matrizCusto[i] = new int[this->dimensao]; //a matriz custo recebe o tamanho da dimensao
             }
             else if (countLine == 3) // tratamento da capacidade
             {
-                this->capacidadeTotal = atoi(results[1].c_str());
+                this->capacidadeTotal = std::stoi(results[1]);
             }
         }
         else
@@ -415,7 +408,7 @@ CVRP::CVRP(const std::string arquivo)
 
                 for (int i = 0; i < results.size(); i++)
                 {
-                    this->matrizCusto[countLine - offset][i] = atoi(results[i].c_str());
+                    this->matrizCusto[countLine - offset][i] = std::stoi(results[i]);
                 }
                 // matriz custo
             }
