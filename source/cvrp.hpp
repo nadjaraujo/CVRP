@@ -5,7 +5,6 @@
 #include <iterator>
 #include <limits>
 #include <algorithm>
-#include <bits/stdc++.h>
 
 #define INFINITO 2147483647; //valor maximo para uma variavel do tipo int
 
@@ -27,16 +26,13 @@ private:
   bool checarCapacidadeComDemanda(int);
   void entregaProduto(int);
   int procurarProximoNo(int);
-  int CalcularCustoSwap(vector<vector<int>>, int);
-  int CalcularCustoPrint(vector<int>);
-  void CalcularCustoDasRotas();
-  void swapInterRoute();
   int somaEntregas(vector<int>);
   int entregaMin(vector<int>);
   int entregaMax(vector<int>);
   int CustoPorRota(vector<int>);
   int CustoSolucao(vector<vector<int>>);
   vector<int> custoRota;
+  void swapInterRoute(vector<vector<int>>);
   vector<vector<int>> swap_1_1(vector<vector<int>>);
   vector<vector<int>> opt_1(vector<vector<int>>);
   vector<vector<int>> rotas; //vertor que vai armazenar as rotas
@@ -100,8 +96,6 @@ void CVRP::HVM()
        << "Distancia total Percorrida de: " << custoTotal << " km" << endl;
   cout << "Rotas :" << endl;
 
-  CalcularCustoDasRotas();
-
   for (const auto &rota : rotas)
   {
     for (const auto &no : rota)
@@ -111,11 +105,10 @@ void CVRP::HVM()
     cout << endl;
   }
 
-  swapInterRoute();
-
+  swapInterRoute(rotas);
   swap_1_1(rotas);
-
   opt_1(rotas);
+
 }
 
 //funçao pra entregar o produto
@@ -243,6 +236,104 @@ int CVRP::CustoSolucao(vector<vector<int>> s)
   }
 
   return custo;
+}
+
+//Movimento de troca de clientes entre a mesma rota
+void CVRP::swapInterRoute(vector<vector<int>> rota)
+{
+    vector<int> custoRota;
+    vector<int>indicesPrint; // armazena o valor das rotas que foram alteradas
+    int custoSwap = 0;
+    vector<vector<int>> rotasFinal = rotas;   //decidi deixar um vetor separado pra armazenar as rotas alteradas pra não confundir
+    vector<int> rotaAtual;
+    vector<int> melhorRota;
+
+    //Armazena os custos das rotas iniciais (rotas sem alterações) num vetor
+    int aux = 0;
+    for (int j = 0; j < rota.size(); j++){
+            aux = CustoPorRota(rota[j]);
+            custoRota.push_back(aux);
+    }
+
+    vector<int> custoRotaInicial = custoRota; // só armazena os custos iniciais das rotas pra printar depois
+
+    for (int i = 0; i < rota.size(); i++)
+    {
+
+    //faz parte da função de permutação
+    sort(rota[i].begin() + 1, rota[i].end() - 1);
+
+    //Esse next permutation gera todas as combinações possíveis de clientes dentro de cada rota, ou seja, as soluções possíveis
+    while (next_permutation(rota[i].begin() + 1, rota[i].end() - 1))
+    {
+
+      rotaAtual = rota[i];                    //armazena a rota que está sendo trabalhada atualmente
+      custoSwap = CustoPorRota(rota[i]);      // calcula o custo que a rota teria se a troca fosse efetuada
+
+      // O custo que a rota teria caso a troca de clientes fosse efetuada é menor que o custo anterior da rota?
+      if (custoSwap < custoRota[i])
+      {
+        //se for, o custo passa a ser o menor e sua rota é armazenada
+        custoRota[i] = custoSwap;
+        melhorRota = rotaAtual;
+        rotasFinal[i] = melhorRota;
+
+        indicesPrint.push_back(i); // armazena o indice da rota que foi alterada pra printar depois
+        if(indicesPrint[i]==i){ //tira o excesso de indices do vetor
+            indicesPrint.pop_back();
+        }
+      }
+    }
+    }
+
+    cout << "----------------------------SWAP INTER ROUTE-------------------------------" << endl;
+    cout << "\n"
+       << endl;
+    cout << "---------------Rotas Inicias-------------" << endl;
+    for (const auto &rot : rotas)
+    {
+    for (const auto &no : rot)
+    {
+      cout << no << " ";
+    }
+    cout << endl;
+    }
+
+    cout << "\n"
+       << "Alteracoes foram feitas nas rotas: " << endl;
+    for (int k = 0; k < indicesPrint.size(); k++)
+    cout << indicesPrint[k] << endl;
+
+    cout << "\n"
+       << endl;
+
+    for (int k = 0; k < indicesPrint.size(); k++)
+    {
+    cout << "***** Rota " << indicesPrint[k] << ": *******" << endl;
+    cout << "Custo anterior da rota: " << custoRotaInicial[indicesPrint[k]] << endl;
+    cout << "Custo da rota apos a alteracao: " << custoRota[indicesPrint[k]] << endl;
+    }
+
+    cout << "\n"
+       << endl;
+    cout << "---------------Rota Final-------------" << endl;
+    for (const auto &rot : rotasFinal)
+    {
+    for (const auto &no : rot)
+    {
+      cout << no << " ";
+    }
+    cout << endl;
+    }
+
+    int b = CustoSolucao(rotas);
+    int g = CustoSolucao(rotasFinal);
+
+    cout << "\n"
+       << endl;
+    cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
+    cout << "Distancia Percorrida apos o swap: " << g << " km" << endl;
+    cout << "Economia de " << b - g << " km" << endl;
 }
 
 // movimento de troca entre um cliente de uma rota para um cliente de outra rota.
@@ -497,165 +588,4 @@ CVRP::CVRP(const std::string arquivo)
   }
 
   demanda = this->demandaTotal;
-}
-
-//funçao que calcula os custos finais pra printar
-int CVRP::CalcularCustoPrint(vector<int> r)
-{
-  int aux = 0;
-  for (int i = 0; i < r.size(); i++)
-  {
-
-    aux += r[i];
-  }
-
-  return aux;
-}
-
-//Função que calcula os custos das rotas iniciais e coloca num array de custos
-void CVRP::CalcularCustoDasRotas()
-{
-
-  vector<vector<int>> r = rotas;
-
-  int c = 0;
-
-  for (int i = 0; i < r.size(); i++)
-  {
-    c = 0;
-    for (int j = 0; j < r[i].size(); j++)
-    {
-
-      int clienteInicial = r[i][j];
-      int clienteTestado = r[i][j + 1];
-
-      if (clienteTestado == 0)
-      {
-
-        c += matrizCusto[clienteTestado][clienteInicial];
-
-        break;
-      }
-      else
-        c += matrizCusto[clienteTestado][clienteInicial];
-    }
-    custoRota.push_back(c);
-  }
-}
-
-//Função que calcula o custo que a rota passaria a ter caso troque seus clientes de ordem
-int CVRP::CalcularCustoSwap(vector<vector<int>> r, int indiceRota)
-{
-
-  int custo = 0;
-  for (int j = 0; j < r[indiceRota].size(); j++)
-  {
-
-    int clienteInicial = r[indiceRota][j];
-    int clienteTestado = r[indiceRota][j + 1];
-
-    if (clienteTestado == 0)
-    {
-      custo += matrizCusto[clienteTestado][clienteInicial];
-
-      break;
-    }
-    else
-      custo += matrizCusto[clienteTestado][clienteInicial];
-  }
-
-  return custo;
-}
-void CVRP::swapInterRoute()
-{
-
-  vector<int>
-      indicesPrint;
-  int custoSwap = 0;
-  vector<vector<int>> ro = rotas;
-  vector<int> rotaAtual;
-  vector<int> melhorRota;
-  vector<vector<int>> rotasFinal = rotas;   //decidi deixar um vetor separado pra armazenar as rotas alteradas pra não confundir
-  vector<int> custoRotaInicial = custoRota; // só armazena os custos iniciais das rotas pra printar depois
-  //for(int i = 0; i < custoRotaInicial.size(); i++){cout<< "Custo rota indice"<< i << " "<<custoRotaInicial[i]<< "\n";}
-
-  //
-
-  for (int i = 0; i < ro.size(); i++)
-  {
-
-    //faz parte da função de permutação
-    sort(ro[i].begin() + 1, ro[i].end() - 1);
-
-    //Esse next permutation gera todas as combinações possíveis de clientes dentro de cada rota, ou seja, as soluções possíveis
-    while (next_permutation(ro[i].begin() + 1, ro[i].end() - 1))
-    {
-
-      rotaAtual = ro[i];                    //armazena a rota que está sendo trabalhada atualmente
-      custoSwap = CalcularCustoSwap(ro, i); // calcula o custo que a rota teria se a troca fosse efetuada
-
-      //cout<<"CustoSwap"<<custoSwap<<endl;
-      //cout<<"CustoRota"<<custoRota[i]<<endl;
-
-      if (custoSwap < custoRota[i])
-      { // Se o custo que a rota teria caso a troca de clientes fosse efetuada é menor que o custo anterior da rota?
-
-        indicesPrint.push_back(i);
-
-        //se for, o custo passa a ser o menor e sua rota é armazenada
-        custoRota[i] = custoSwap;
-        melhorRota = rotaAtual;
-        rotasFinal[i] = melhorRota;
-      }
-    }
-  }
-
-  cout << "----------------------------SWAP INTER ROUTE-------------------------------" << endl;
-  cout << "\n"
-       << endl;
-  cout << "---------------Rotas Inicias-------------" << endl;
-  for (const auto &rot : rotas)
-  {
-    for (const auto &no : rot)
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-  }
-
-  cout << "\n"
-       << "Alteracoes foram feitas nas rotas: " << endl;
-  for (int kaka = 0; kaka < indicesPrint.size(); kaka++)
-    cout << indicesPrint[kaka] << endl;
-
-  cout << "\n"
-       << endl;
-
-  for (int kaka = 0; kaka < indicesPrint.size(); kaka++)
-  {
-    cout << "***** Rota " << indicesPrint[kaka] << ": *******" << endl;
-    cout << "Custo anterior da rota: " << custoRotaInicial[indicesPrint[kaka]] << endl;
-    cout << "Custo da rota apos a alteracao: " << custoRota[indicesPrint[kaka]] << endl;
-  }
-
-  cout << "\n"
-       << endl;
-  cout << "---------------Rota Final-------------" << endl;
-  for (const auto &rot : rotasFinal)
-  {
-    for (const auto &no : rot)
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-  }
-
-  int b = CalcularCustoPrint(custoRotaInicial);
-  int g = CalcularCustoPrint(custoRota);
-
-  cout << "\n"
-       << endl;
-  cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
-  cout << "Distancia Percorrida apos o swap: " << g << " km" << endl;
-  cout << "Economia de " << b - g << " km" << endl;
 }
