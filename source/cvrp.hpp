@@ -5,7 +5,8 @@
 #include <iterator>
 #include <limits>
 #include <algorithm>
-
+#include<time.h>
+#include <stdlib.h>
 #define INFINITO 2147483647; //valor maximo para uma variavel do tipo int
 
 using namespace std;
@@ -36,7 +37,7 @@ private:
   vector<vector<int>> swapInterRoute(vector<vector<int>>);
   vector<vector<int>> swap_1_1(vector<vector<int>>);
   vector<vector<int>> opt_1(vector<vector<int>>);
-
+  void VND(vector<vector<int>>, vector<vector<int>>, vector<vector<int>>, vector<vector<int>>);
 
 public:
   CVRP() {}
@@ -105,10 +106,10 @@ void CVRP::HVM()
     cout << endl;
   }
 
-  swapInterRoute(rotas);
-  swap_1_1(rotas);
-  opt_1(rotas);
-
+  vector<vector<int>> bestSolution_swapInterRoute = swapInterRoute(rotas);
+  vector<vector<int>> bestSolution_swap_1_1 = swap_1_1(rotas);
+  vector<vector<int>> bestSolution_opt_1 = opt_1(rotas);
+  //VND(bestSolution_swapInterRoute, bestSolution_swap_1_1, bestSolution_opt_1, rotas);
 }
 
 //funçao pra entregar o produto
@@ -248,6 +249,7 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
     vector<int> rotaAtual;
     vector<int> melhorRota;
 
+
     //Armazena os custos das rotas iniciais (rotas sem alterações) num vetor
     int aux = 0;
     for (int j = 0; j < rota.size(); j++){
@@ -259,6 +261,7 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
 
     for (int i = 0; i < rota.size(); i++)
     {
+        vector<vector<int>>sortRotas;
 
     //faz parte da função de permutação
     sort(rota[i].begin() + 1, rota[i].end() - 1);
@@ -271,25 +274,41 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
       custoSwap = CustoPorRota(rota[i]);      // calcula o custo que a rota teria se a troca fosse efetuada
 
       // O custo que a rota teria caso a troca de clientes fosse efetuada é menor que o custo anterior da rota?
-      if (custoSwap < custoRota[i])
+      if (custoSwap <= custoRota[i])
       {
         //se for, o custo passa a ser o menor e sua rota é armazenada
         custoRota[i] = custoSwap;
         melhorRota = rotaAtual;
+        sortRotas.push_back(melhorRota);
+
+        //Se não houve mais de 1 movimento que seja de menor custo
+        if(sortRotas.size() < 1)
         rotasFinal[i] = melhorRota;
 
-        indicesPrint.push_back(i); // armazena o indice da rota que foi alterada pra printar depois
-        if(indicesPrint[i]==i){ //tira o excesso de indices do vetor
+        //Se houve mais de 1 movimento que seja de menor custo, escolhe aleatoriamente algum deles
+        if(sortRotas.size() > 1){
+        int sizeRotas = sortRotas.size();
+
+        srand(time(NULL));
+        int v1 = rand() % sizeRotas;
+
+        rotasFinal[i] = sortRotas[v1];
+
+        }
+
+         indicesPrint.push_back(i); // armazena o indice da rota que foi alterada pra printar depois
+        if(custoRotaInicial[i] == custoRota[i]){ //tira o excesso de indices do vetor
             indicesPrint.pop_back();
         }
+
+       }
       }
-    }
     }
 
     cout << "----------------------------SWAP INTER ROUTE-------------------------------" << endl;
     cout << "\n"
        << endl;
-    cout << "---------------Rotas Inicias-------------" << endl;
+    cout <<  "---------------Rotas Inicias-------------" << endl;
     for (const auto &rot : rotas)
     {
     for (const auto &no : rot)
@@ -341,6 +360,7 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
 // movimento de troca entre um cliente de uma rota para um cliente de outra rota.
 vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 {
+  vector<int> custoRotaSwap_1_1;
   vector<vector<int>> rotaInicial = s;
   cout << "----------------------------SWAP_1_1-------------------------------" << endl;
   cout << "\n"
@@ -411,6 +431,7 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
                 idxClienteMelhorSwap = idxClienteR2;
                 clienteMelhorSwap = clienteR2;
                 custoMelhorSwap = custoSolucaoSwapada;
+                custoRotaSwap_1_1[i] = custoMelhorSwap;
               }
             }
             if (clienteMelhorSwap != -1) //se houver
@@ -591,3 +612,9 @@ CVRP::CVRP(const std::string arquivo)
 
   demanda = this->demandaTotal;
 }
+
+/*
+void CVRP:: VND (vector<vector<int>> bestSolution_swapInterRoute, vector<vector<int>> bestSolution_swap_1_1, vector<vector<int>> bestSolution_opt_1, vector<vector<int>> r){
+
+
+}*/

@@ -4,6 +4,7 @@
 #include "cvrp.hpp"
 
 int main()
+
 {
     const std::string name("../instancias_teste/P-n16-k8.txt");
     //const std::string name("../instancias_teste/P-n19-k2.txt");
