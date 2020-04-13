@@ -37,7 +37,7 @@ private:
   vector<vector<int>> swapInterRoute(vector<vector<int>>);
   vector<vector<int>> swap_1_1(vector<vector<int>>);
   vector<vector<int>> opt_1(vector<vector<int>>);
-  void VND(vector<vector<int>>, vector<vector<int>>, vector<vector<int>>, vector<vector<int>>);
+  vector<vector<int>> VND(vector<vector<int>>);
 
 public:
   CVRP() {}
@@ -47,12 +47,12 @@ public:
 
 //heuristica do vizinho mais proximo
 void CVRP::HVM()
-{
+{ 
   int noAtual = 0;
 
   // capacidade total do caminhão
   capacidadeAtual = capacidadeTotal;
-  int custoAtual = 0;
+  int resultadoAtual = 0;
   vector<int> rotaAtual;
 
   //enquanto houver demanda
@@ -106,10 +106,8 @@ void CVRP::HVM()
     cout << endl;
   }
 
-  vector<vector<int>> bestSolution_swapInterRoute = swapInterRoute(rotas);
-  vector<vector<int>> bestSolution_swap_1_1 = swap_1_1(rotas);
-  vector<vector<int>> bestSolution_opt_1 = opt_1(rotas);
-  //VND(bestSolution_swapInterRoute, bestSolution_swap_1_1, bestSolution_opt_1, rotas);
+ vector<vector<int>> bestSolution_VND = VND(rotas);
+
 }
 
 //funçao pra entregar o produto
@@ -305,55 +303,6 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
       }
     }
 
-    cout << "----------------------------SWAP INTER ROUTE-------------------------------" << endl;
-    cout << "\n"
-       << endl;
-    cout <<  "---------------Rotas Inicias-------------" << endl;
-    for (const auto &rot : rotas)
-    {
-    for (const auto &no : rot)
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-    }
-
-    cout << "\n"
-       << "Alteracoes foram feitas nas rotas: " << endl;
-    for (int k = 0; k < indicesPrint.size(); k++)
-    cout << indicesPrint[k] << endl;
-
-    cout << "\n"
-       << endl;
-
-    for (int k = 0; k < indicesPrint.size(); k++)
-    {
-    cout << "***** Rota " << indicesPrint[k] << ": *******" << endl;
-    cout << "Custo anterior da rota: " << custoRotaInicial[indicesPrint[k]] << endl;
-    cout << "Custo da rota apos a alteracao: " << custoRota[indicesPrint[k]] << endl;
-    }
-
-    cout << "\n"
-       << endl;
-    cout << "---------------Rota Final-------------" << endl;
-    for (const auto &rot : rotasFinal)
-    {
-    for (const auto &no : rot)
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-    }
-
-    int b = CustoSolucao(rotas);
-    int g = CustoSolucao(rotasFinal);
-
-    cout << "\n"
-       << endl;
-    cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
-    cout << "Distancia Percorrida apos o swap: " << g << " km" << endl;
-    cout << "Economia de " << b - g << " km" << endl;
-
     return rotasFinal;
 }
 
@@ -362,21 +311,6 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 {
   vector<int> custoRotaSwap_1_1;
   vector<vector<int>> rotaInicial = s;
-  cout << "----------------------------SWAP_1_1-------------------------------" << endl;
-  cout << "\n"
-       << endl;
-  cout << "---------------Rotas Inicias-------------" << endl;
-  for (const auto &rot : rotaInicial)
-  {
-    for (const auto &no : rot) //muitas prints
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-  }
-
-  cout << "\n"
-       << endl;
 
   for (int i = 0; i < s.size(); i++)
   {
@@ -452,27 +386,6 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 
   vector<vector<int>> rotaFinal = s; // solução atualizada
 
-  cout << "\n"
-       << endl;
-  cout << "---------------Rota Final-------------" << endl;
-  for (const auto &rot : rotaFinal)
-  {
-    for (const auto &no : rot)
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-  }
-  //prints
-  int b = CustoSolucao(rotaInicial);
-  int g = CustoSolucao(rotaFinal);
-
-  cout << "\n"
-       << endl;
-  cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
-  cout << "Distancia Percorrida apos o swap: " << g << " km" << endl;
-  cout << "Economia de " << b - g << " km" << endl;
-
   return rotaFinal;
 }
 
@@ -480,21 +393,6 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 vector<vector<int>> CVRP::opt_1(vector<vector<int>> s)
 {
   vector<vector<int>> rotaInicial = s;
-  cout << "----------------------------1_Opt inter route-------------------------------" << endl;
-  cout << "\n"
-       << endl;
-  cout << "---------------Rotas Inicias-------------" << endl;
-  for (const auto &rot : rotaInicial)
-  {
-    for (const auto &no : rot) //muitas prints
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-  }
-
-  cout << "\n"
-       << endl;
 
   for (int i = 0; i < s.size(); i++)
   {
@@ -531,10 +429,80 @@ vector<vector<int>> CVRP::opt_1(vector<vector<int>> s)
   }
   vector<vector<int>> rotaFinal = s;
 
+
+  return rotaFinal;
+}
+
+//Algortmo variable nighborhood Descent
+vector<vector<int>> CVRP::VND(vector<vector<int>> s)
+{
+
+vector<vector<int>> rotas = s;
+
+cout << "----------------------------VND-------------------------------" << endl;
   cout << "\n"
        << endl;
+  cout << "---------------Rotas Inicias-------------" << endl;
+  for (const auto &rot : rotas)
+  {
+    for (const auto &no : rot) //muitas prints
+    {
+      cout << no << " ";
+    }
+    cout << endl;
+  }
+  int b = CustoSolucao(rotas);
+  cout << "Custo Inicial: " << b << " km" << endl;
+  cout << "\n"
+       << endl;
+
+
+vector<vector<int>> resultadoAtual;
+
+int custo = CustoSolucao(rotas); 
+int custoAtual;
+int k = 1;   // tipo de estrutura de vizinhança 
+
+
+while (k <= 3)
+{
+  if ( k == 1)
+  {
+    resultadoAtual = swapInterRoute(rotas);
+    custoAtual = CustoSolucao(resultadoAtual); 
+
+  }
+  else if ( k == 2)
+  {
+    resultadoAtual = swap_1_1(rotas);
+    custoAtual = CustoSolucao(resultadoAtual); 
+
+  }
+  else if ( k == 3)
+  {
+    resultadoAtual = opt_1(rotas);
+    custoAtual = CustoSolucao(resultadoAtual); 
+  }
+
+  if (custoAtual < custo)
+{
+
+ custo = custoAtual;
+ rotas = resultadoAtual;
+ k = 1 ; 
+
+}
+
+else 
+{
+ k = k + 1 ;
+}
+}
+
+ cout << "\n"
+       << endl;
   cout << "---------------Rota Final-------------" << endl;
-  for (const auto &rot : rotaFinal)
+  for (const auto &rot : resultadoAtual)
   {
     for (const auto &no : rot)
     {
@@ -543,17 +511,18 @@ vector<vector<int>> CVRP::opt_1(vector<vector<int>> s)
     cout << endl;
   }
   //prints
-  int b = CustoSolucao(rotaInicial);
-  int g = CustoSolucao(rotaFinal);
+  int g = CustoSolucao(resultadoAtual);
 
   cout << "\n"
        << endl;
-  cout << "Distancia Percorrida inicialmente: " << b << " km" << endl;
-  cout << "Distancia Percorrida apos o 1_OPT: " << g << " km" << endl;
+
+  cout << "Custo final apos VND: " << g << " km" << endl;
   cout << "Economia de " << b - g << " km" << endl;
 
-  return rotaFinal;
+  
+return rotas;
 }
+
 
 CVRP::CVRP(const std::string arquivo)
 {
@@ -613,8 +582,3 @@ CVRP::CVRP(const std::string arquivo)
   demanda = this->demandaTotal;
 }
 
-/*
-void CVRP:: VND (vector<vector<int>> bestSolution_swapInterRoute, vector<vector<int>> bestSolution_swap_1_1, vector<vector<int>> bestSolution_opt_1, vector<vector<int>> r){
-
-
-}*/
