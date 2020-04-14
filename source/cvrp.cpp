@@ -23,6 +23,7 @@ using namespace std::chrono;
 void CVRP::HVM()
 { 
   auto start = high_resolution_clock::now(); 
+
   int noAtual = 0;
 
   // capacidade total do caminhão
@@ -30,9 +31,13 @@ void CVRP::HVM()
   int resultadoAtual = 0;
   vector<int> rotaAtual;
 
+  
+
   //enquanto houver demanda
   while (1)
   {
+
+    
 
     rotaAtual.push_back(noAtual);
 
@@ -45,6 +50,7 @@ void CVRP::HVM()
 
     noAtual = proxNo;
     //se o próximo nó for = 0
+
     if (proxNo == 0)
     {
       rotaAtual.push_back(proxNo);
@@ -120,10 +126,13 @@ void CVRP::entregaProduto(int no)
 // função que verifica se há demanda
 bool CVRP::checarDemanda()
 {
-  for (int i = 0; i < demanda.size() + 1; i++)
-    if (demanda[i] > 0)
-      return true;
-
+  for (int i = 0; i < demanda.size(); i++){
+   
+    if (demanda[i] > 0){
+        return true;
+    }
+  }
+    
   return false;
 }
 
@@ -281,7 +290,6 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
     vector<int> rotaAtual;
     vector<int> melhorRota;
 
-
     //Armazena os custos das rotas iniciais (rotas sem alterações) num vetor
     int aux = 0;
     for (int j = 0; j < rota.size(); j++){
@@ -295,48 +303,28 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
     {
         vector<vector<int>>sortRotas;
 
-    //faz parte da função de permutação
-    sort(rota[i].begin() + 1, rota[i].end() - 1);
-
     //Esse next permutation gera todas as combinações possíveis de clientes dentro de cada rota, ou seja, as soluções possíveis
     while (next_permutation(rota[i].begin() + 1, rota[i].end() - 1))
     {
-
+       
       rotaAtual = rota[i];                    //armazena a rota que está sendo trabalhada atualmente
       custoSwap = CustoPorRota(rota[i]);      // calcula o custo que a rota teria se a troca fosse efetuada
 
       // O custo que a rota teria caso a troca de clientes fosse efetuada é menor que o custo anterior da rota?
-      if (custoSwap <= custoRota[i])
+      if (custoSwap < custoRota[i])
       {
         //se for, o custo passa a ser o menor e sua rota é armazenada
         custoRota[i] = custoSwap;
         melhorRota = rotaAtual;
-        sortRotas.push_back(melhorRota);
-
-        //Se não houve mais de 1 movimento que seja de menor custo
-        if(sortRotas.size() < 1)
         rotasFinal[i] = melhorRota;
-
-        //Se houve mais de 1 movimento que seja de menor custo, escolhe aleatoriamente algum deles
-        if(sortRotas.size() > 1){
-        int sizeRotas = sortRotas.size();
-
-        int v1 = rand() % sizeRotas;
-        rotasFinal[i] = sortRotas[v1];
-
-        }
-
-         indicesPrint.push_back(i); // armazena o indice da rota que foi alterada pra printar depois
-        if(custoRotaInicial[i] == custoRota[i]){ //tira o excesso de indices do vetor
-            indicesPrint.pop_back();
         }
 
        }
       }
+      
+    return rotasFinal;
     }
 
-    return rotasFinal;
-}
 
 // movimento de troca entre um cliente de uma rota para um cliente de outra rota.
 vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
@@ -481,15 +469,17 @@ int custo = CustoSolucao(rotas);
 int custoAtual;
 int k = 1;   // tipo de estrutura de vizinhança 
 
-
 while (k <= 3)
 {
-  if ( k == 1)
-  {
-    resultadoAtual = swapInterRoute(rotas);
-    custoAtual = CustoSolucao(resultadoAtual); 
 
-  }
+if ( k == 1)
+  {
+    cout << "interRoute" << endl;
+   resultadoAtual = swapInterRoute(rotas);   
+                
+   custoAtual = CustoSolucao(resultadoAtual); 
+  cout << custoAtual << endl;
+ }
   else if ( k == 2)
   {
     resultadoAtual = swap_1_1(rotas);
