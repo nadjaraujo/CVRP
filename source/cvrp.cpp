@@ -9,7 +9,10 @@
 #include <stdlib.h>
 #include "vector"
 #include "cvrpClass.hpp"
+#include <chrono> 
 
+using namespace std; 
+using namespace std::chrono; 
 
 #define INFINITO 2147483647; //valor maximo para uma variavel do tipo int
 
@@ -19,6 +22,7 @@
 //heuristica do vizinho mais proximo
 void CVRP::HVM()
 { 
+  auto start = high_resolution_clock::now(); 
   int noAtual = 0;
 
   // capacidade total do caminhão
@@ -67,6 +71,28 @@ void CVRP::HVM()
   //     << "\n"
   //     << "Distancia total Percorrida de: " << custoTotal << " km" << endl;
   //cout << "Rotas :" << endl;
+
+auto stop = high_resolution_clock::now(); 
+  auto duration = duration_cast<microseconds>(stop - start); 
+  
+    cout << "Time taken by function: "
+         << duration.count() << " microseconds" << endl;
+
+
+  cout << "---------------Rotas Inicias-------------" << endl;
+  for (const auto &rot : rotas)
+  {
+    for (const auto &no : rot) //muitas prints
+    {
+      cout << no << " ";
+    }
+    cout << endl;
+  }
+  int b = CustoSolucao(rotas);
+  cout << "Custo Inicial: " << b << " km" << endl;
+  cout << "\n"
+       << endl;
+
 
  vector<vector<int>> bestSolution_VND = VND(rotas);
 
@@ -446,26 +472,15 @@ vector<vector<int>> rotas = s;
 cout << "----------------------------VND-------------------------------" << endl;
   cout << "\n"
        << endl;
-  cout << "---------------Rotas Inicias-------------" << endl;
-  for (const auto &rot : rotas)
-  {
-    for (const auto &no : rot) //muitas prints
-    {
-      cout << no << " ";
-    }
-    cout << endl;
-  }
-  int b = CustoSolucao(rotas);
-  cout << "Custo Inicial: " << b << " km" << endl;
-  cout << "\n"
-       << endl;
 
+auto start = high_resolution_clock::now(); 
 
 vector<vector<int>> resultadoAtual;
 
 int custo = CustoSolucao(rotas); 
 int custoAtual;
 int k = 1;   // tipo de estrutura de vizinhança 
+
 
 while (k <= 3)
 {
@@ -502,6 +517,13 @@ else
 }
 }
 
+auto stop = high_resolution_clock::now(); 
+auto duration = duration_cast<microseconds>(stop - start); 
+
+ cout << "Time taken by function: "
+         << duration.count() << " microseconds" << endl; 
+  
+
  cout << "\n"
        << endl;
   cout << "---------------Rota Final-------------" << endl;
@@ -520,7 +542,6 @@ else
        << endl;
 
   cout << "Custo final apos VND: " << g << " km" << endl;
-  cout << "Economia de " << b - g << " km" << endl;
 
   
 return rotas;
