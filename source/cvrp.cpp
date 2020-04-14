@@ -13,8 +13,6 @@
 
 #define INFINITO 2147483647; //valor maximo para uma variavel do tipo int
 
-using namespace std;
-
 #define DISTRIBUIDOR 0
 
 
@@ -34,8 +32,8 @@ void CVRP::HVM()
 
     rotaAtual.push_back(noAtual);
 
-    cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
-    int proxNo = procurarProximoNo(noAtual);
+    //cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
+    int proxNo = procurarProximoNoAleatorio(noAtual,5);
 
     entregaProduto(proxNo);
     //custo total incrementado pela distancia dos dois nos.
@@ -65,19 +63,10 @@ void CVRP::HVM()
   }
 
   // quando não houver mais demandas.
-  cout << "O trabalho foi realizado! " //prints
-       << "\n"
-       << "Distancia total Percorrida de: " << custoTotal << " km" << endl;
-  cout << "Rotas :" << endl;
-
-  for (const auto &rota : rotas)
-  {
-    for (const auto &no : rota)
-    {
-      cout << no << " "; //mais prints
-    }
-    cout << endl;
-  }
+  // cout << "O trabalho foi realizado! " //prints
+  //     << "\n"
+  //     << "Distancia total Percorrida de: " << custoTotal << " km" << endl;
+  //cout << "Rotas :" << endl;
 
  vector<vector<int>> bestSolution_VND = VND(rotas);
 
@@ -92,13 +81,13 @@ void CVRP::entregaProduto(int no)
     capacidadeAtual -= demanda[no];
     demanda[no] = 0;
 
-    cout << "Cliente " << no << " abastecido" << endl;
+   // cout << "Cliente " << no << " abastecido" << endl;
   }
   else
   {
     capacidadeAtual = capacidadeTotal;
 
-    cout << "Caminhou voltou para o distribuidor" << endl;
+   // cout << "Caminhou voltou para o distribuidor" << endl;
   }
 }
 
@@ -120,7 +109,7 @@ bool CVRP::checarCapacidadeComDemanda(int no)
 }
 
 // funcao pra procurar o proximo menor vizinho
-int CVRP::procurarProximoNo(int noATual)
+/*int CVRP::procurarProximoNo(int noATual)
 {
   int prox = DISTRIBUIDOR;
   //variavel que armazena a menor distancia
@@ -136,6 +125,52 @@ int CVRP::procurarProximoNo(int noATual)
   }
 
   return prox;
+}*/
+
+void CVRP::inserirVizinhoAleatorio(vector<int>& vizinhosAleatorios, int no, int noAtual, int maxAleatorios){
+
+  if(vizinhosAleatorios.size() < maxAleatorios){
+    vizinhosAleatorios.push_back(no);
+  }
+  else{
+    int custoMax = 0;
+    int iMax = 0;
+    // Descobre o no com maior custo
+    for(int i = 0; i < vizinhosAleatorios.size();i++){
+      if(this->matrizCusto[noAtual][vizinhosAleatorios[i]] > custoMax){
+        custoMax = this->matrizCusto[noAtual][vizinhosAleatorios[i]];
+        iMax = i;
+      }
+    }
+
+    if(custoMax > this->matrizCusto[noAtual][no]){
+      vizinhosAleatorios[iMax] = no;
+    }
+  }
+}
+
+
+// funcao pra procurar o proximo menor vizinho
+int CVRP::procurarProximoNoAleatorio(int noATual, int maxAleatorios)
+{
+  vector<int> vizinhosAleatorios;
+
+  for (int i = 1; i < this->dimensao; i++)
+  {
+    if (checarCapacidadeComDemanda(i)) //checa se o vizinho atual tem demanda que possa ser atendida
+    {
+      inserirVizinhoAleatorio(vizinhosAleatorios, i, noATual, maxAleatorios);
+    }
+  }
+
+  if(vizinhosAleatorios.size() > 0){
+    int randomIndex = rand() % vizinhosAleatorios.size();
+    return vizinhosAleatorios[randomIndex];
+  }
+  else{
+    return DISTRIBUIDOR;
+  }
+
 }
 
 //função que calcula a soma das demandas entregues por rota r
@@ -260,9 +295,7 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
         if(sortRotas.size() > 1){
         int sizeRotas = sortRotas.size();
 
-        srand(time(NULL));
         int v1 = rand() % sizeRotas;
-
         rotasFinal[i] = sortRotas[v1];
 
         }
@@ -282,7 +315,6 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
 // movimento de troca entre um cliente de uma rota para um cliente de outra rota.
 vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 {
-  vector<int> custoRotaSwap_1_1;
   vector<vector<int>> rotaInicial = s;
 
   for (int i = 0; i < s.size(); i++)
@@ -338,7 +370,6 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
                 idxClienteMelhorSwap = idxClienteR2;
                 clienteMelhorSwap = clienteR2;
                 custoMelhorSwap = custoSolucaoSwapada;
-                custoRotaSwap_1_1[i] = custoMelhorSwap;
               }
             }
             if (clienteMelhorSwap != -1) //se houver
@@ -435,7 +466,6 @@ vector<vector<int>> resultadoAtual;
 int custo = CustoSolucao(rotas); 
 int custoAtual;
 int k = 1;   // tipo de estrutura de vizinhança 
-
 
 while (k <= 3)
 {
