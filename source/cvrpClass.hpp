@@ -29,7 +29,6 @@ private:
   int **matrizCusto;
   bool checarDemanda();
   bool checarCapacidadeComDemanda(int);
-  bool listaDistZero (vector<int>);
   void entregaProduto(int);
   int procurarProximoNo(int);
   int procurarProximoNoAleatorio(int,int);

@@ -19,76 +19,62 @@ using namespace std::chrono;
 #define DISTRIBUIDOR 0
 
 
-//heuristica do vizinho mais proximo
+//heuristica do vizinho mais proximo parcialmente aleatória.
 void CVRP::HVM()
 { 
+  // tempo de execução
   auto start = high_resolution_clock::now(); 
 
   int noAtual = 0;
-
-  // capacidade total do caminhão
   capacidadeAtual = capacidadeTotal;
-  int resultadoAtual = 0;
   vector<int> rotaAtual;
 
-  
+  // solução inicial
 
-  //enquanto houver demanda
   while (1)
   {
-
-    
-
+    // insere o nó atual na rota 
     rotaAtual.push_back(noAtual);
 
-    //cout << "Capacidade atual do caminhao: " << capacidadeAtual << endl;
     int proxNo = procurarProximoNoAleatorio(noAtual,5);
 
     entregaProduto(proxNo);
-    //custo total incrementado pela distancia dos dois nos.
-    custoTotal += matrizCusto[proxNo][noAtual];
 
     noAtual = proxNo;
-    //se o próximo nó for = 0
 
-    if (proxNo == 0)
+   
+    if (noAtual == 0)
     {
-      rotaAtual.push_back(proxNo);
-      rotas.push_back(rotaAtual); //adiciona a rota feita no vetor de rotas
-      rotaAtual.clear();          //limpa rota atual pra começar outra rota
+      rotaAtual.push_back(noAtual);
+      rotas.push_back(rotaAtual); 
+      rotaAtual.clear();         
     }
-
+    
+   
     if (!checarDemanda())
     {
+
       // voltando manualmente para o distribuidor, trabalho finalizado
-      rotaAtual.push_back(proxNo);
-      rotaAtual.push_back(DISTRIBUIDOR);
-      rotas.push_back(rotaAtual);
-      rotaAtual.clear();
-
-      custoTotal += matrizCusto[DISTRIBUIDOR][noAtual];
-
+        rotaAtual.push_back(noAtual); 
+        rotaAtual.push_back(DISTRIBUIDOR); 
+        rotas.push_back(rotaAtual);  
+      
       break;
     }
   }
 
-  // quando não houver mais demandas.
-  // cout << "O trabalho foi realizado! " //prints
-  //     << "\n"
-  //     << "Distancia total Percorrida de: " << custoTotal << " km" << endl;
-  //cout << "Rotas :" << endl;
-
-auto stop = high_resolution_clock::now(); 
+// para o calculo do tempo de execução e calcula e printa a sua duração;
+auto stop = high_resolution_clock::now();  
   auto duration = duration_cast<microseconds>(stop - start); 
-  
     cout << "Time taken by function: "
          << duration.count() << " microseconds" << endl;
 
 
+// print das rotas iniciais
   cout << "---------------Rotas Inicias-------------" << endl;
   for (const auto &rot : rotas)
   {
-    for (const auto &no : rot) //muitas prints
+    for (const auto &no : rot) 
     {
       cout << no << " ";
     }
@@ -100,11 +86,12 @@ auto stop = high_resolution_clock::now();
        << endl;
 
 
+ // chamada do vnd 
  vector<vector<int>> bestSolution_VND = VND(rotas);
 
 }
 
-//funçao pra entregar o produto
+    
 void CVRP::entregaProduto(int no)
 {
   // se nao for um distruibuidor
@@ -112,18 +99,17 @@ void CVRP::entregaProduto(int no)
   {
     capacidadeAtual -= demanda[no];
     demanda[no] = 0;
-
    // cout << "Cliente " << no << " abastecido" << endl;
   }
+
   else
   {
     capacidadeAtual = capacidadeTotal;
-
    // cout << "Caminhou voltou para o distribuidor" << endl;
   }
 }
 
-// função que verifica se há demanda
+// função que verifica se há demanda 
 bool CVRP::checarDemanda()
 {
   for (int i = 0; i < demanda.size(); i++){
@@ -132,9 +118,9 @@ bool CVRP::checarDemanda()
         return true;
     }
   }
-    
   return false;
 }
+
 
 // verifica se a demanda do no/vizinho cabe na capacidade do caminhao
 bool CVRP::checarCapacidadeComDemanda(int no)
@@ -143,24 +129,6 @@ bool CVRP::checarCapacidadeComDemanda(int no)
   return v > 0 && v <= capacidadeAtual;
 }
 
-// funcao pra procurar o proximo menor vizinho
-/*int CVRP::procurarProximoNo(int noATual)
-{
-  int prox = DISTRIBUIDOR;
-  //variavel que armazena a menor distancia
-  int distanciaProx = numeric_limits<int>::max();
-
-  for (int i = 1; i < this->dimensao; i++)
-  {
-    if (this->matrizCusto[noATual][i] < distanciaProx && checarCapacidadeComDemanda(i)) //checa a distancia do no atual pros vizinhos
-    {
-      prox = i;
-      distanciaProx = this->matrizCusto[noATual][i];
-    }
-  }
-
-  return prox;
-}*/
 
 void CVRP::inserirVizinhoAleatorio(vector<int>& vizinhosAleatorios, int no, int noAtual, int maxAleatorios){
 
@@ -301,11 +269,17 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
 
     for (int i = 0; i < rota.size(); i++)
     {
-        vector<vector<int>>sortRotas;
+
+      sort(rota[i].begin() + 1, rota[i].end() - 1);
 
     //Esse next permutation gera todas as combinações possíveis de clientes dentro de cada rota, ou seja, as soluções possíveis
     while (next_permutation(rota[i].begin() + 1, rota[i].end() - 1))
     {
+      /*for(int w = 0; w < rota[i].size(); w++){
+        cout << rota[i][w] << " ";
+      }*/
+
+      //cout << endl;
        
       rotaAtual = rota[i];                    //armazena a rota que está sendo trabalhada atualmente
       custoSwap = CustoPorRota(rota[i]);      // calcula o custo que a rota teria se a troca fosse efetuada
@@ -329,7 +303,7 @@ vector<vector<int>> CVRP::swapInterRoute(vector<vector<int>> rota)
 // movimento de troca entre um cliente de uma rota para um cliente de outra rota.
 vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 {
-  vector<vector<int>> rotaInicial = s;
+  vector<vector<int>> rotaInicial = s;  // recebe a solução inicial 
 
   for (int i = 0; i < s.size(); i++)
   {
@@ -337,62 +311,68 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 
     for (int j = i + 1; j < s.size(); j++)
     {
-      vector<int> r2 = s[j]; //rota r2
+      vector<int> r2 = s[j]; 
+
       //otimização!! verifica se é viável fazer o swap
       if (entregaMin(r1) - entregaMax(r2) + somaEntregas(r2) <= capacidadeTotal)
       {
+        // pego os clientes de r1
         for (int idxClienteR1 = 0; idxClienteR1 < r1.size(); idxClienteR1++)
         {
-          int clienteR1 = r1[idxClienteR1]; //pega o cliente de r1
-
-          if (clienteR1 == 0) // se for 0, é distribuidor (do nothing)
+          int clienteR1 = r1[idxClienteR1]; 
+          if (clienteR1 == 0) // (do nothing)
           {
             continue;
           }
-          //variavel que vai guardar o melhor swap
-          int clienteMelhorSwap = -1;
-          int idxClienteMelhorSwap = -1;
-          int custoMelhorSwap = INFINITO;
+         
+          int clienteMelhorSwap = -1;  
+          int idxClienteMelhorSwap = -1; 
+          int custoMelhorSwap = INFINITO; 
 
-          if (demanda[clienteR1] + somaEntregas(r2) + entregaMax(r2) <= capacidadeTotal)
+          //otimização, avaliação de movimentos inviáveia pro swap
+          if (demanda[clienteR1] + somaEntregas(r2) - entregaMax(r2) <= capacidadeTotal)
           {
-
+           
             for (int idxClienteR2 = 0; idxClienteR2 < r2.size(); idxClienteR2++)
             {
 
-              int clienteR2 = r2[idxClienteR2];
+              int clienteR2 = r2[idxClienteR2]; // do nothing
               if (clienteR2 == 0)
               {
                 continue;
               }
+
               //armazena o custo da solução atual pra ser comparada com o custo da solução do swap.
               int custoSolucaoAtual = CustoPorRota(r1) + CustoPorRota(r2);
 
               vector<int> r1Swapado = r1;
               vector<int> r2Swapado = r2;
 
-              // faz o swap
+              // realiza o swap 
               r1Swapado[idxClienteR1] = clienteR2;
               r2Swapado[idxClienteR2] = clienteR1;
 
               //armazena o custo da solução do swap
               int custoSolucaoSwapada = CustoPorRota(r1Swapado) + CustoPorRota(r2Swapado);
+              
               // custo s menor                                  //custo s menor                                           //caber na capacidade p/ r1 e r2;
               if ((custoSolucaoAtual > custoSolucaoSwapada) && (custoSolucaoSwapada < custoMelhorSwap) && (somaEntregas(r1Swapado) <= capacidadeTotal) && (somaEntregas(r2Swapado) <= capacidadeTotal))
               {
-                // att solução
-                idxClienteMelhorSwap = idxClienteR2;
-                clienteMelhorSwap = clienteR2;
-                custoMelhorSwap = custoSolucaoSwapada;
+                
+                idxClienteMelhorSwap = idxClienteR2; 
+                clienteMelhorSwap = clienteR2; 
+                custoMelhorSwap = custoSolucaoSwapada; 
               }
             }
-            if (clienteMelhorSwap != -1) //se houver
+
+            if (clienteMelhorSwap != -1) //se houve um swap ele altera a solução 
             {
 
               cout << "swap de " << clienteR1 << " com " << clienteMelhorSwap << endl;
+
               r2[idxClienteMelhorSwap] = clienteR1;
               r1[idxClienteR1] = clienteMelhorSwap;
-              // atualiza rota
+              // atualiza  a solução
               s[i] = r1;
               s[j] = r2;
             }
@@ -410,8 +390,7 @@ vector<vector<int>> CVRP::swap_1_1(vector<vector<int>> s)
 //remove um cliente de uma rota e insere em outra posição.
 vector<vector<int>> CVRP::opt_1(vector<vector<int>> s)
 {
-  vector<vector<int>> rotaInicial = s;
-
+  // recebo a minha rota r1
   for (int i = 0; i < s.size(); i++)
   {
     vector<int> r1 = s[i];
@@ -432,10 +411,10 @@ vector<vector<int>> CVRP::opt_1(vector<vector<int>> s)
           continue;
         }
 
-        int custoSolucaoAtual = CustoPorRota(r1);                  // salva custo atual
-        vector<int> r1_reinserido = r1;                            //copia rota de r1
-        r1_reinserido.insert(r1_reinserido.begin() + k, vizinhoJ); // insere vizinho j na posição k
-        r1_reinserido.erase(r1_reinserido.begin() + j);            // remove j
+        int custoSolucaoAtual = CustoPorRota(r1);                
+        vector<int> r1_reinserido = r1;                          
+        r1_reinserido.insert(r1_reinserido.begin() + k, vizinhoJ); 
+        r1_reinserido.erase(r1_reinserido.begin() + j);            
         int custoNovaSolucao = CustoPorRota(r1_reinserido);
         if (custoSolucaoAtual > custoNovaSolucao)
         {
@@ -467,18 +446,17 @@ vector<vector<int>> resultadoAtual;
 
 int custo = CustoSolucao(rotas); 
 int custoAtual;
-int k = 1;   // tipo de estrutura de vizinhança 
+int k = 1;    
 
 while (k <= 3)
 {
 
 if ( k == 1)
   {
-    cout << "interRoute" << endl;
-   resultadoAtual = swapInterRoute(rotas);   
-                
+    
+   resultadoAtual = swapInterRoute(rotas);         
    custoAtual = CustoSolucao(resultadoAtual); 
-  cout << custoAtual << endl;
+  
  }
   else if ( k == 2)
   {
